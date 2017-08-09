@@ -1,13 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pkg8.puzzle;
 
 /**
- *
- * @author MingKie
+ * This class is responsible to check if a puzzle is solvable or not.
+ * It checks the number of inversion.
  */
 public class Checker {
     private final String BLANK = "0";
@@ -15,11 +10,12 @@ public class Checker {
     private int inversion;
     private boolean solvable;
 
-    public Checker(String[] state, int inversion, boolean solvable) {
+    public Checker(String[] state) {
         this.state = state;
-        this.inversion = inversion;
-        this.solvable = solvable;
+        inversion = 0;
+        //solvable = false;
     }
+    
     /**
      * Check the number of inversion. If it's odd, the puzzle is not
      * solvable. If it's even, the puzzle is solvable.
@@ -27,6 +23,7 @@ public class Checker {
     public void check() {
         for (int i = 0; i < state.length; ++i) {
             for (int j = i; j < state.length; ++j) {
+                // Do not count 0
                 if (!state[i].equals(BLANK)) {
                     if (!state[j].equals(BLANK)) {
                         // If left one is greater than right one, it gives
@@ -38,34 +35,16 @@ public class Checker {
                 }
             }
         }
-        if (inversion%2 == 0) {
+        // If it's even, it's solvable
+        if ((inversion % 2) == 0) {
             solvable = true;
+        // If it's odd, it's not solvable
+        } else {
+            solvable = false;
         }
-    }
-
-    public void setState(String[] state) {
-        this.state = state;
-    }
-
-    public void setInversion(int inversion) {
-        this.inversion = inversion;
-    }
-
-    public void setSolvable(boolean solvable) {
-        this.solvable = solvable;
-    }
-
-    public String[] getState() {
-        return state;
-    }
-
-    public int getInversion() {
-        return inversion;
     }
 
     public boolean isSolvable() {
         return solvable;
     }
-    
-    
 }

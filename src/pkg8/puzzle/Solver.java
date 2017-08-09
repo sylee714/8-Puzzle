@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pkg8.puzzle;
 
 import java.util.ArrayList;
@@ -13,18 +8,22 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 /**
- *
- * @author MingKie
+ * This class solves the given puzzle by using A* with graph search. There are 
+ * two kinds of h(n), one is hamming and other one is manhattan. It uses both 
+ * to solve the puzzle. It stores number of moves to reach the goal, the search 
+ * cost, and run time to compare the performance of those two functions.
  */
 public class Solver {
-    
     private HashMap<Integer, String[]> exploredStates;
     private Queue<Node> frontier;
     private Node init;
     private Node goal;
     private int depth;
     private boolean useHamming;
-    //private String[] curState;
+    private long startTime;
+    private long endTime;
+    private long time;
+    private int totalMove;
     private int totalCost;
     private final String[] GOAL_STATE = {"0", "1", "2", 
                                          "3", "4", "5", 
@@ -41,12 +40,12 @@ public class Solver {
     }
     
     public void solve() {
+        startTime = System.currentTimeMillis();
         frontier.add(init);
         if (!frontier.isEmpty()) {     
             boolean reachedGoal = checkGoal(init.getState());
             ArrayList<Node> neighbors;
             Node cur;
-            //Node parent;
             if (useHamming) {
                 Node.setUseHamming(true);
             } else {
@@ -55,24 +54,23 @@ public class Solver {
             while (!reachedGoal) {
                 // Get the node with the smallest value
                 cur = frontier.remove();
-                System.out.println("Depth: " + cur.getDepth());
-                System.out.println("Hamming: " + cur.getHamming());
-                System.out.println("Depth: " + cur.getDepth());
-                cur.printState();
                 // Check if that node has the goal state
                 if (!checkGoal(cur.getState())) {
                     // Add its state to the explored states
                     addExploredStates(cur.getState());
                     // Expand it and do not add ones that are already explored
-                    neighbors = (ArrayList<Node>) createNeighbors((ArrayList<String[]>) getNeighbors(cur), cur.getDepth() + 1, cur);
-                    printNeighbors(neighbors);
+                    neighbors = (ArrayList<Node>) createNeighbors(
+                            (ArrayList<String[]>) getNeighbors(cur), 
+                            cur.getDepth() + 1, cur);
                     // Add its neighbors to the frontier
                     addFrontier(neighbors);
                 } else {
+                    endTime = System.currentTimeMillis();
+                    time = endTime - startTime;
                     reachedGoal = true;
                     goal = cur;
+                    totalMove = goal.getDepth();
                 }
-                //depth++;
             }
         } else {
             System.out.println("Frontier is empty.");
@@ -83,6 +81,7 @@ public class Solver {
         System.out.println("Neighbors: ");
         for (int i = 0; i < neighbors.size(); ++i) {
             System.out.println("Hamming: " + neighbors.get(i).getHamming());
+            System.out.println("Manhattan: " + neighbors.get(i).getManhattan());
             System.out.println("Depth: " + neighbors.get(i).getDepth());
             neighbors.get(i).printState();
         }
@@ -123,51 +122,38 @@ public class Solver {
         int size = 3;
         String[] newState;
         int blankIndex = node.getBlankIndex();
-        //System.out.println("Blank Index: " + blankIndex);
         int blankCol = blankIndex % 3;
         int blankRow = blankIndex / 3;    
         // Up
         if (!((blankRow - 1) < 0)) {
-            //System.out.println("Up");
             String[] curState = node.getState().clone();
             newState = swap(curState, blankIndex, (blankIndex - size));
             if (!checkExploredStates(newState)) {
                 neighbors.add(newState);
-            } else {
-                System.out.println("It's an explored state.");
             }
         }     
         // Down
         if (!((blankRow + 1) > (size - 1))) {
-            //System.out.println("Down");
             String[] curState = node.getState().clone();
             newState = swap(curState, blankIndex, (blankIndex + size));
             if (!checkExploredStates(newState)) {
                 neighbors.add(newState);
-            } else {
-                System.out.println("It's an explored state.");
             }
         }    
         // Left
         if (!((blankCol - 1) < 0)) {
-            //System.out.println("Left");
             String[] curState = node.getState().clone();
             newState = swap(curState, blankIndex, (blankIndex - 1));
             if (!checkExploredStates(newState)) {
                 neighbors.add(newState);
-            } else {
-                System.out.println("It's an explored state.");
             }
         }  
         // Right
         if (!((blankCol + 1) > (size - 1))) {
-            //System.out.println("Right");
             String[] curState = node.getState().clone();
             newState = swap(curState, blankIndex, (blankIndex + 1));    
             if (!checkExploredStates(newState)) {
                 neighbors.add(newState);
-            } else {
-                System.out.println("It's an explored state.");
             }    
         }
         return neighbors;
@@ -178,15 +164,6 @@ public class Solver {
         String temp = newState[blankIndex];
         newState[blankIndex] = newState[newBlankIndex];
         newState[newBlankIndex] = temp;
-        /*
-        for (int i = 0; i < state.length; ++i) {
-            if ((i % 3) == 0) {
-                System.out.println();
-            }
-            System.out.print(newState[i] + " ");    
-        }
-        System.out.println();
-        */
         return newState;
     }
     
@@ -197,8 +174,6 @@ public class Solver {
             if (!state[i].equals(BLANK)) {
                 goal = Integer.parseInt(state[i]);
                 if (goal != i) {
-                    //System.out.println("Goal: " + goal);
-                    //System.out.println("Cur: " + i);
                     hamming++;
                 }
             }
@@ -212,11 +187,8 @@ public class Solver {
         for (int i = 0; i < state.length; ++i) {
             if (!state[i].equals(BLANK)) {
                 goal = Integer.parseInt(state[i]);
-                //System.out.println("Goal: " + goal);
-                //System.out.println("Cur: " + i);
                 if (goal != i) {
                     manhattan = manhattan + calculateManhattan(goal, i);
-                    //System.out.println(manhattan);
                 }
             }
         }
@@ -242,17 +214,32 @@ public class Solver {
         return success;
     }
     
+    public void printResult() {
+        printSolution(goal);
+        System.out.println("Total move: " + totalMove);
+        System.out.println("Total cost: " + totalCost);
+        System.out.println("Time: " + time + " milliseconds");
+        System.out.println();
+    }
+    
     public void printSolution(Node cur) {
         if (cur.getParent() == null) {
             return;
         }
         printSolution(cur.getParent());
-        System.out.println("Move: " + depth);
+        System.out.println("Depth: " + cur.getDepth());
         cur.printState();
     }
-    
+
+    public long getTime() {
+        return time;
+    }
+
+    public int getTotalMove() {
+        return totalMove;
+    }
+
     public int getTotalCost() {
         return totalCost;
     }
-    
 }

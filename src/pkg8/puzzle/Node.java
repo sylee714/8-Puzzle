@@ -1,16 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package pkg8.puzzle;
 
 /**
- *
- * @author MingKie
+ * This class represents a node. Nodes stores the values of hamming, manhattan,
+ * depth, state, and parent. It implements Comparable to use priority queues.
  */
 public class Node implements Comparable<Node> {
     private final String BLANK = "0";
+    // To indicate what h(n) to use
     private static boolean useHamming;
     private int hamming;
     private int manhattan;
@@ -48,50 +44,29 @@ public class Node implements Comparable<Node> {
         return blankIndex;
     }
 
-    public void setBlankIndex(int blankIndex) {
-        this.blankIndex = blankIndex;
-    }
-
     public String[] getState() {
         return state;
-    }
-
-    public void setState(String[] state) {
-        this.state = state;
     }
 
     public int getHamming() {
         return hamming;
     }
 
-    public void setHamming(int hamming) {
-        this.hamming = hamming;
-    }
-
     public int getManhattan() {
         return manhattan;
     }
-
-    public void setManhattan(int manhattan) {
-        this.manhattan = manhattan;
-    }
-
+    
     public int getDepth() {
         return depth;
     }
-
-    public void setDepth(int depth) {
-        this.depth = depth;
-    }
-
+    
     public Node getParent() {
         return parent;
     }
-
-    public void setParent(Node parent) {
-        this.parent = parent;
-    }
     
+    /**
+     * To print out the state of the node in 2-D array form.
+     */
     public void printState() {
         for (int i = 0; i < state.length; ++i) {
             if ((i % 3) == 0) {
@@ -103,6 +78,13 @@ public class Node implements Comparable<Node> {
         System.out.println();
     }
 
+    /**
+     * Compares this object with the specified object for order.
+     * @param o - the object to be compared
+     * @return a negative integer, zero, or a positive integer 
+     *         as this object is less than, equal to, or greater than 
+     *         the specified object.
+     */
     @Override
     public int compareTo(Node o) {
         int total1 = depth + hamming;
@@ -119,5 +101,4 @@ public class Node implements Comparable<Node> {
             return 0;
         }
     }
-    
 }
