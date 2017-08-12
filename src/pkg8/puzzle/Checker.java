@@ -13,7 +13,6 @@ public class Checker {
     public Checker(String[] state) {
         this.state = state;
         inversion = 0;
-        //solvable = false;
     }
     
     /**
